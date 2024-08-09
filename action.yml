@@ -1,5 +1,5 @@
 name: "Config Git Actions Bot"
-description: "Sets up Git global configuration to use GitHub Actions bot as the committer. This action configures the Git user.email and user.name globally, attributing commits in workflows to the GitHub Actions bot."
+description: "Configures Git globally to use GitHub Actions bot as committer, setting user.email and user.name for workflow commits."
 branding:
   icon: "git-branch"
   color: "blue"
