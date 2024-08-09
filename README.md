@@ -40,19 +40,3 @@ This configuration allows for proper commit attribution in GitHub Actions workfl
 ## 📚 Background
 
 GitBot Config was inspired by a [GitHub community discussion](https://github.com/orgs/community/discussions/26560) on the correct method to set up the Git user for GitHub Actions. The community-discovered email address enables proper association of commits with the GitHub Actions bot.
-
-## 📖 Documentation
-
-For more detailed information, please refer to our [full documentation](https://github.com/drengskapur/gitbot-config/wiki).
-
-## 🤝 Contributing
-
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for more details.
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 📞 Support
-
-If you encounter any problems or have any questions, please [open an issue](https://github.com/drengskapur/gitbot-config/issues/new).
