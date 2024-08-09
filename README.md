@@ -10,8 +10,8 @@ Instantly configure Git user as GitHub Actions bot in your workflow, ensuring pr
 Add this to your GitHub Actions workflow:
 
 ```yaml
-steps:
-  - uses: drengskapur/gitbot-config@v1.1.2
+- name: Config Git Actions Bot
+  uses: drengskapur/gitbot-config@v1.1.2
 ```
 
 ## ✨ Key Features
