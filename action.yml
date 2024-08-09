@@ -1,4 +1,4 @@
-name: "GitBot Config: Automated Git User Setup for GitHub Actions"
+name: "GitBot Config - Automated Git User Setup for GitHub Actions"
 description: "Automatically configure Git user as GitHub Actions bot. Ensures proper commit attribution in workflows with zero setup."
 branding:
   icon: 'git-branch'
