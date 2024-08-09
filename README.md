@@ -11,7 +11,7 @@ Add this to your GitHub Actions workflow:
 
 ```yaml
 steps:
-  - uses: drengskapur/gitbot-config@v1.0.0
+  - uses: drengskapur/gitbot-config@v1.1.2
 ```
 
 ## ✨ Key Features
