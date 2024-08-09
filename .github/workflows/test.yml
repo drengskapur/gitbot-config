@@ -1,0 +1,32 @@
+name: Test GitBot Config
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
+
+      - name: Run GitBot Config
+        uses: ./
+
+      - name: Check Git configuration
+        run: |
+          expected_name="github-actions[bot]"
+          expected_email="41898282+github-actions[bot]@users.noreply.github.com"
+
+          actual_name=$(git config --get user.name)
+          actual_email=$(git config --get user.email)
+
+          if [ "$actual_name" = "$expected_name" ] && [ "$actual_email" = "$expected_email" ]; then
+            echo "✅ Success: Git user name and email are correctly set"
+            exit 0
+          else
+            echo "❌ Failure: Git user configuration is incorrect"
+            echo "Expected name: $expected_name"
+            echo "Actual name: $actual_name"
+            echo "Expected email: $expected_email"
+            echo "Actual email: $actual_email"
+            exit 1
+          fi
