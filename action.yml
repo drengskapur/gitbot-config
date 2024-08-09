@@ -1,5 +1,8 @@
-name: "GitBot Config"
-description: "Quickly configure Git user as GitHub Actions bot"
+name: "GitBot Config: Automated Git User Setup for GitHub Actions"
+description: "Streamline your GitHub Actions workflows with GitBot Config. This action automatically configures the Git user as the GitHub Actions bot, ensuring proper commit attribution with zero manual setup. Perfect for CI/CD pipelines, automated releases, and any workflow requiring Git operations."
+branding:
+  icon: 'git-branch'
+  color: 'blue'
 runs:
   using: "composite"
   steps:
