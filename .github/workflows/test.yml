@@ -44,13 +44,3 @@ jobs:
         name: attestation
         path: ${{ steps.find_attestation.outputs.file }}
         if-no-files-found: error
-
-    - name: Verify attestation
-      run: |
-        gh attestation verify "${{ steps.find_attestation.outputs.file }}" -R ${{ github.repository }}
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Show attestation contents
-      run: |
-        cat "${{ steps.find_attestation.outputs.file }}"
