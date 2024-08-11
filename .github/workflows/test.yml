@@ -38,17 +38,17 @@ jobs:
 
       - name: Get commit SHA
         id: get_sha
-        run: echo "::set-output name=sha::$(git rev-parse HEAD)"
+        run: echo "sha=$(git rev-parse HEAD | sed 's/^/sha256:/')" >> $GITHUB_OUTPUT
 
       - name: Generate artifact attestation
         uses: actions/attest-build-provenance@v1
         with:
           subject-name: ${{ github.repository }}
-          subject-digest: sha256:${{ steps.get_sha.outputs.sha }}
+          subject-digest: ${{ steps.get_sha.outputs.sha }}
 
       - name: Verify attestation
         run: |
-          gh attestation verify sha256:${{ steps.get_sha.outputs.sha }} -R ${{ github.repository }}
+          gh attestation verify ${{ steps.get_sha.outputs.sha }} -R ${{ github.repository }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
