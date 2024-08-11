@@ -4,6 +4,11 @@ branding:
   icon: "git-branch"
   color: "blue"
 
+inputs:
+  subject-path:
+    description: 'Path to the artifact to attest'
+    required: true
+
 runs:
   using: "composite"
   steps:
@@ -12,3 +17,8 @@ runs:
         git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
         git config --global user.name "github-actions[bot]"
       shell: bash
+
+    - name: Generate artifact attestation
+      uses: actions/attest-build-provenance@v1.4.1
+      with:
+        subject-path: ${{ inputs.subject-path }}
