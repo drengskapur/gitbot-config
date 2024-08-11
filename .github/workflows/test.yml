@@ -1,8 +1,8 @@
-name: Generate and Verify Attestation
+name: Test GitBot Config and Attestation
 on: [push, pull_request]
 
 jobs:
-  attestation:
+  test:
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -14,6 +14,26 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
+
+    - name: Run GitBot Config
+      uses: ./
+
+    - name: Check Git configuration
+      run: |
+        expected_name="github-actions[bot]"
+        expected_email="41898282+github-actions[bot]@users.noreply.github.com"
+        actual_name=$(git config --get user.name)
+        actual_email=$(git config --get user.email)
+        if [ "$actual_name" = "$expected_name" ] && [ "$actual_email" = "$expected_email" ]; then
+          echo "✅ Success: Git user name and email are correctly set"
+        else
+          echo "❌ Failure: Git user configuration is incorrect"
+          echo "Expected name: $expected_name"
+          echo "Actual name: $actual_name"
+          echo "Expected email: $expected_email"
+          echo "Actual email: $actual_email"
+          exit 1
+        fi
 
     - name: Calculate SHA256
       id: sha256
@@ -28,9 +48,30 @@ jobs:
         subject-name: ${{ github.repository }}
         subject-digest: ${{ steps.sha256.outputs.digest }}
 
+    - name: Find attestation file
+      id: find_attestation
+      run: |
+        ATTESTATION_FILE=$(find . -name "*.intoto.jsonl" -type f)
+        if [ -z "$ATTESTATION_FILE" ]; then
+          echo "Error: Attestation file not found"
+          exit 1
+        fi
+        echo "file=$ATTESTATION_FILE" >> $GITHUB_OUTPUT
+
     - name: Upload attestation
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: attestation
         path: ${{ steps.find_attestation.outputs.file }}
         if-no-files-found: error
+
+    - name: Verify attestation
+      run: |
+        gh attestation verify "${{ steps.find_attestation.outputs.file }}" -R ${{ github.repository }}
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Show attestation contents
+      run: |
+        cat "${{ steps.find_attestation.outputs.file }}"
+        
