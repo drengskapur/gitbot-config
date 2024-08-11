@@ -1,4 +1,4 @@
-name: "Configure Git for GitHub Actions"
+name: "Configure GitHub Actions Bot"
 description: "Configures Git globally to use GitHub Actions bot as committer"
 branding:
   icon: "git-branch"
