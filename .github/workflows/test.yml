@@ -12,7 +12,7 @@ jobs:
       packages: read
       attestations: write
     steps:
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
+      - uses: actions/checkout@v3
 
       - name: Run GitBot Config
         uses: ./
@@ -49,14 +49,19 @@ jobs:
           subject-name: ${{ github.repository }}
           subject-digest: ${{ steps.sha256.outputs.digest }}
 
-      - name: Verify attestation
-        run: |
-          gh attestation verify ${{ steps.sha256.outputs.digest }} -R ${{ github.repository }}
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Upload attestation
         uses: actions/upload-artifact@v3
         with:
           name: attestation
           path: attestation.intoto.jsonl
+
+      - name: Download attestation
+        uses: actions/download-artifact@v3
+        with:
+          name: attestation
+
+      - name: Verify attestation
+        run: |
+          gh attestation verify attestation.intoto.jsonl -R ${{ github.repository }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
