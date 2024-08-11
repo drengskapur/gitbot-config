@@ -4,8 +4,6 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-Compatible-brightgreen)](https://github.com/features/actions)
 
-Use this action when you need to commit and push changes to a branch from within a GitHub Actions workflow.
-
 ## 🚀 Quick Start
 
 Add this to your GitHub Actions workflow:
@@ -13,8 +11,16 @@ Add this to your GitHub Actions workflow:
 ```yaml
 - name: Config Git Actions Bot
   uses: drengskapur/gitbot-config@v1.1.2
+```
+
+Use this action when you need to commit and push changes to a branch from within a GitHub Actions workflow.
+
+```yaml
+- name: Config Git Actions Bot
+  uses: drengskapur/gitbot-config@v1.1.2
 
   # Now you can commit changes
+
 - run: |
     git add .
     git commit -m "Automated changes"
