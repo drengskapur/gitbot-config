@@ -1,14 +1,19 @@
-name: "Config Git Actions Bot"
-description: "Configures Git globally to use GitHub Actions bot as committer, setting user.email and user.name for workflow commits."
+name: "Config Git and Attest Build Provenance"
+description: "Configures Git globally to use GitHub Actions bot as committer and attests build provenance"
 branding:
   icon: "git-branch"
   color: "blue"
+
 runs:
   using: "composite"
   steps:
-    - run: |
+    - name: Configure Git
+      run: |
         git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
         git config --global user.name "github-actions[bot]"
       shell: bash
+
     - name: Attest Build Provenance
       uses: actions/attest-build-provenance@v1.4.1
+      with:
+        provenance-name: "build-provenance.json"
