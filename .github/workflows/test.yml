@@ -43,12 +43,12 @@ jobs:
         echo "digest=sha256:$HASH" >> $GITHUB_OUTPUT
 
     - name: Generate artifact attestation
-      uses: actions/attest-build-provenance@95116d3ef10ebe0ab9ff3870b8c8bcf1b25b042d # v1.0.0
+      uses: actions/attest-build-provenance@v1.4.1
       with:
         subject-name: ${{ github.repository }}
         subject-digest: ${{ steps.sha256.outputs.digest }}
 
-    - name: Debug - List attestations
+    - name: List attestations
       run: |
         gh api /repos/${{ github.repository }}/attestations | jq .
       env:
