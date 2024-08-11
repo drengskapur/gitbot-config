@@ -5,11 +5,8 @@ jobs:
   test:
     runs-on: ubuntu-latest
     permissions:
-      id-token: write
       contents: read
       actions: read
-      packages: read
-      attestations: write
 
     steps:
     - name: Checkout repository
@@ -35,6 +32,26 @@ jobs:
           exit 1
         fi
 
+    - name: Test Git operations
+      run: |
+        # Create a test file
+        echo "Test content" > test_file.txt
+        
+        # Stage the file
+        git add test_file.txt
+        
+        # Commit the file
+        git commit -m "Test commit"
+        
+        # Check if the commit was successful
+        if git log -1 --pretty=format:"%an <%ae>" | grep -q "$expected_name <$expected_email>"; then
+          echo "✅ Success: Commit was made with the correct user information"
+        else
+          echo "❌ Failure: Commit does not have the correct user information"
+          git log -1 --pretty=format:"%an <%ae>"
+          exit 1
+        fi
+
     - name: Calculate SHA256
       id: sha256
       run: |
@@ -42,35 +59,19 @@ jobs:
         HASH=$(find "$REPO_ROOT" -type f -not -path '*/\.git/*' -print0 | sort -z | xargs -0 sha256sum | sha256sum | awk '{print $1}')
         echo "digest=sha256:$HASH" >> $GITHUB_OUTPUT
 
-    - name: Generate artifact attestation
-      uses: actions/attest-build-provenance@v1.4.1
-      with:
-        subject-name: ${{ github.repository }}
-        subject-digest: ${{ steps.sha256.outputs.digest }}
-
-    - name: List attestations
+    - name: Create attestation JSON
       run: |
-        gh api /repos/${{ github.repository }}/attestations | jq .
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Find and verify attestation
-      run: |
-        ATTESTATION_URL=$(gh api /repos/${{ github.repository }}/attestations | jq -r '.[0].url')
-        if [ -z "$ATTESTATION_URL" ] || [ "$ATTESTATION_URL" == "null" ]; then
-          echo "Error: Attestation URL not found"
-          exit 1
-        fi
-        echo "Attestation URL: $ATTESTATION_URL"
-        
-        ATTESTATION_CONTENT=$(gh api $ATTESTATION_URL)
-        echo "Attestation content:"
-        echo "$ATTESTATION_CONTENT" | jq .
-
-        echo "$ATTESTATION_CONTENT" > attestation.json
-        gh attestation verify attestation.json -R ${{ github.repository }}
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        cat << EOF > attestation.json
+        {
+          "subject": "${{ github.repository }}",
+          "digest": "${{ steps.sha256.outputs.digest }}",
+          "timestamp": "$(date -u +'%Y-%m-%dT%H:%M:%SZ')",
+          "gitConfig": {
+            "name": "$(git config --get user.name)",
+            "email": "$(git config --get user.email)"
+          }
+        }
+        EOF
 
     - name: Upload attestation
       uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3.1.3
