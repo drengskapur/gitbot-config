@@ -1,10 +1,15 @@
-name: Test GitBot Config
+name: Test GitBot Config and Attestation
 
 on: [push, pull_request]
 
 jobs:
   test:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+      actions: read
+      packages: read
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
 
@@ -21,12 +26,40 @@ jobs:
 
           if [ "$actual_name" = "$expected_name" ] && [ "$actual_email" = "$expected_email" ]; then
             echo "✅ Success: Git user name and email are correctly set"
-            exit 0
           else
             echo "❌ Failure: Git user configuration is incorrect"
             echo "Expected name: $expected_name"
             echo "Actual name: $actual_name"
             echo "Expected email: $expected_email"
             echo "Actual email: $actual_email"
+            exit 1
+          fi
+
+      - name: Generate provenance
+        uses: actions/generate-provenance@v1
+        with:
+          commit-hash: ${{ github.sha }}
+
+      - name: Generate build attestation
+        uses: actions/attest-build-provenance@v1
+        with:
+          provenance-name: "provenance.json"
+          attestation-name: "attestation.intoto.jsonl"
+          subject-name: ${{ github.repository }}
+          subject-digest: ${{ github.sha }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload attestation
+        uses: actions/upload-artifact@v3
+        with:
+          name: attestation
+          path: attestation.intoto.jsonl
+
+      - name: Verify attestation
+        run: |
+          if [ -f attestation.intoto.jsonl ]; then
+            echo "✅ Success: Attestation file generated"
+          else
+            echo "❌ Failure: Attestation file not found"
             exit 1
           fi
