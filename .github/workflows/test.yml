@@ -36,19 +36,22 @@ jobs:
             exit 1
           fi
 
-      - name: Get commit SHA
-        id: get_sha
-        run: echo "sha=$(git rev-parse HEAD | sed 's/^/sha256:/')" >> $GITHUB_OUTPUT
+      - name: Calculate SHA256
+        id: sha256
+        run: |
+          REPO_ROOT=$(git rev-parse --show-toplevel)
+          HASH=$(find "$REPO_ROOT" -type f -not -path '*/\.git/*' -print0 | sort -z | xargs -0 sha256sum | sha256sum | awk '{print $1}')
+          echo "digest=sha256:$HASH" >> $GITHUB_OUTPUT
 
       - name: Generate artifact attestation
         uses: actions/attest-build-provenance@v1
         with:
           subject-name: ${{ github.repository }}
-          subject-digest: ${{ steps.get_sha.outputs.sha }}
+          subject-digest: ${{ steps.sha256.outputs.digest }}
 
       - name: Verify attestation
         run: |
-          gh attestation verify ${{ steps.get_sha.outputs.sha }} -R ${{ github.repository }}
+          gh attestation verify ${{ steps.sha256.outputs.digest }} -R ${{ github.repository }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
