@@ -28,16 +28,6 @@ jobs:
         subject-name: ${{ github.repository }}
         subject-digest: ${{ steps.sha256.outputs.digest }}
 
-    - name: Find attestation file
-      id: find_attestation
-      run: |
-        ATTESTATION_FILE=$(find . -name "*.intoto.jsonl" -type f)
-        if [ -z "$ATTESTATION_FILE" ]; then
-          echo "Error: Attestation file not found"
-          exit 1
-        fi
-        echo "file=$ATTESTATION_FILE" >> $GITHUB_OUTPUT
-
     - name: Upload attestation
       uses: actions/upload-artifact@v3
       with:
