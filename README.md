@@ -10,14 +10,14 @@ Add this to your GitHub Actions workflow:
 
 ```yaml
 - name: Config Git Actions Bot
-  uses: drengskapur/gitbot-config@v1.1.2
+  uses: drengskapur/gitbot-config@00aecab0a790b146951f9e0c48f564eaf26a9df6 # v1.1.2
 ```
 
 Use this action when you need to commit and push changes to a branch from within a GitHub Actions workflow.
 
 ```yaml
 - name: Config Git Actions Bot
-  uses: drengskapur/gitbot-config@v1.1.2
+  uses: drengskapur/gitbot-config@00aecab0a790b146951f9e0c48f564eaf26a9df6 # v1.1.2
 
   # Now you can commit changes
 
