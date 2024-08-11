@@ -5,7 +5,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       actions: read
 
     steps:
@@ -44,11 +44,14 @@ jobs:
         git commit -m "Test commit"
         
         # Check if the commit was successful
-        if git log -1 --pretty=format:"%an <%ae>" | grep -q "$expected_name <$expected_email>"; then
+        commit_info=$(git log -1 --pretty=format:"%an <%ae>")
+        expected_info="github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>"
+        if [ "$commit_info" = "$expected_info" ]; then
           echo "✅ Success: Commit was made with the correct user information"
         else
           echo "❌ Failure: Commit does not have the correct user information"
-          git log -1 --pretty=format:"%an <%ae>"
+          echo "Expected: $expected_info"
+          echo "Actual: $commit_info"
           exit 1
         fi
 
