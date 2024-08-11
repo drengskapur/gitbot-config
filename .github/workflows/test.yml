@@ -1,4 +1,4 @@
-name: Test GitBot Config and Attestation
+name: Test GitBot Config
 on: [push, pull_request]
 
 jobs:
@@ -48,30 +48,27 @@ jobs:
         subject-name: ${{ github.repository }}
         subject-digest: ${{ steps.sha256.outputs.digest }}
 
-    - name: Find attestation file
-      id: find_attestation
+    - name: Find and verify attestation
       run: |
-        ATTESTATION_FILE=$(find . -name "*.intoto.jsonl" -type f)
-        if [ -z "$ATTESTATION_FILE" ]; then
-          echo "Error: Attestation file not found"
+        ATTESTATION_URL=$(gh api /repos/${{ github.repository }}/attestations | jq -r '.[0].url')
+        if [ -z "$ATTESTATION_URL" ]; then
+          echo "Error: Attestation URL not found"
           exit 1
         fi
-        echo "file=$ATTESTATION_FILE" >> $GITHUB_OUTPUT
+        echo "Attestation URL: $ATTESTATION_URL"
+        
+        ATTESTATION_CONTENT=$(gh api $ATTESTATION_URL)
+        echo "Attestation content:"
+        echo "$ATTESTATION_CONTENT" | jq .
+
+        echo "$ATTESTATION_CONTENT" > attestation.json
+        gh attestation verify attestation.json -R ${{ github.repository }}
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Upload attestation
       uses: actions/upload-artifact@v4
       with:
         name: attestation
-        path: ${{ steps.find_attestation.outputs.file }}
+        path: attestation.json
         if-no-files-found: error
-
-    - name: Verify attestation
-      run: |
-        gh attestation verify "${{ steps.find_attestation.outputs.file }}" -R ${{ github.repository }}
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Show attestation contents
-      run: |
-        cat "${{ steps.find_attestation.outputs.file }}"
-        
