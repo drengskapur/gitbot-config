@@ -10,6 +10,7 @@ jobs:
       contents: read
       actions: read
       packages: read
+      attestations: write
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
 
@@ -35,31 +36,20 @@ jobs:
             exit 1
           fi
 
-      - name: Generate provenance
-        uses: actions/generate-provenance@v1
-        with:
-          commit-hash: ${{ github.sha }}
-
-      - name: Generate build attestation
+      - name: Generate artifact attestation
         uses: actions/attest-build-provenance@v1
         with:
-          provenance-name: "provenance.json"
-          attestation-name: "attestation.intoto.jsonl"
           subject-name: ${{ github.repository }}
           subject-digest: ${{ github.sha }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify attestation
+        run: |
+          gh attestation verify ${{ github.sha }} -R ${{ github.repository }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload attestation
         uses: actions/upload-artifact@v3
         with:
           name: attestation
           path: attestation.intoto.jsonl
-
-      - name: Verify attestation
-        run: |
-          if [ -f attestation.intoto.jsonl ]; then
-            echo "✅ Success: Attestation file generated"
-          else
-            echo "❌ Failure: Attestation file not found"
-            exit 1
-          fi
